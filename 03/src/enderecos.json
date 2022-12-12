@@ -1,1 +1,18 @@
-[]
+{
+    "endereco": [
+        {
+            "endereco": {
+                "cep": "54756-040",
+                "logradouro": "Rua São Paulo",
+                "complemento": "",
+                "bairro": "São Paulo",
+                "localidade": "Camaragibe",
+                "uf": "PE",
+                "ibge": "2603454",
+                "gia": "",
+                "ddd": "81",
+                "siafi": "2629"
+            }
+        }
+    ]
+}
