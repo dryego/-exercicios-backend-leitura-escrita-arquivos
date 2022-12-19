@@ -1,37 +1,30 @@
 const { buscarEndereco } = require('utils-playground');
-const fs = require('fs/promises');
+const { readFile, writeFile } = require('fs/promises');
 
 const enderecoCep = async (req, res) => {
+    const { cep } = req.params;
+
     try {
-        const { cep } = req.params;
-        //cep.replace("\D", "");
+        const enderecos = JSON.parse(await readFile('./src/enderecos.json'));
 
-        if (!cep && Number(cep) < 8) {
-            return res.status(404).json({ mensagem: 'CEP não Informado ou invalido.' });
-        }
-        const buscarEnderecoCep = await buscarEndereco(cep);
 
-        const lerJson = await fs.readFile('./src/enderecos.json');
-        const parseEndereco = JSON.parse(lerJson);
+        let endereco = enderecos.find((endereco) => { return endereco.cep.replace('-', '') === cep });
 
-        parseEndereco.endereco.push({
-            buscarEnderecoCep
-        });
+        if (endereco) {
+            return res.status(200).json(endereco);
+        };
 
-        // const verificarEnderecoSalvos = parseEndereco.endereco.find((endereco) => { return endereco.cep === cep });
-        // console.log(verificarEnderecoSalvos);
+        endereco = await buscarEndereco(cep);
 
-        // console.log(verificarEnderecoSalvos);
+        if (endereco.erro) {
+            return res.status(404).json({ mensage: 'Endereço NÂO encontrado.' });
+        };
 
-        // if (verificarEnderecoSalvos > 0) {
-        //     //await fs.writeFile('./src/enderecos.json', JSON.stringify(parseEndereco));
+        enderecos.push(endereco);
 
-        //     return res.status(200).json(buscarEnderecoCep);
-        // } else {
+        await writeFile('./src/enderecos.json', JSON.stringify(enderecos));
 
-        await fs.writeFile('./src/enderecos.json', JSON.stringify(parseEndereco));
-        return res.status(200).json(buscarEnderecoCep);
-        //}
+        return res.status(200).json(endereco);
 
     } catch (erro) {
         return res.status(500).json({ mensagem: `Erro interno: ${erro}` })
